@@ -1,4 +1,5 @@
 using DoctorAppointmentWebApi.DTOs;
+using DoctorAppointmentWebApi.Models;
 
 namespace DoctorAppointmentWebApi.Controllers;
 
@@ -56,6 +57,57 @@ public class PatientsController : ControllerBase
         return Ok(patientDtos);
     }
 
+    [HttpGet("Create a new patient", Name = (nameof(CreatePatient)))]
+    public async Task<ActionResult<PatientDto>> CreatePatient(PatientDto patientDto)
+    {
+        var patient = new Patient
+        {
+            PatientID = patientDto.PatientID,
+            FirstName = patientDto.FirstName,
+            Address = patientDto.Address,
+            DateOfBirth = patientDto.DateOfBirth,
+            Email = patientDto.Email,
+            Gender = patientDto.Gender,
+            InsuranceNumber = patientDto.InsuranceNumber,
+            LastName = patientDto.LastName,
+            PhoneNumber = patientDto.PhoneNumber,
+        };
+        
+        _context.Patients.Add(patient);
+        await _context.SaveChangesAsync();
+
+        var createdPatient = new PatientDto
+        {
+            PatientID = patient.PatientID,
+            FirstName = patientDto.FirstName,
+            Address = patientDto.Address,
+            DateOfBirth = patientDto.DateOfBirth,
+            Email = patientDto.Email,
+            Gender = patientDto.Gender,
+            InsuranceNumber = patientDto.InsuranceNumber,
+            LastName = patientDto.LastName,
+            PhoneNumber = patientDto.PhoneNumber,
+        };
+        
+        createdPatient.Links.Add(new Link(
+            href: Url.Action(nameof(GetPatientById), new { id = createdPatient.PatientID }),
+            rel: "self",
+            method: "GET"));
+
+        createdPatient.Links.Add(new Link(
+            href: Url.Action(nameof(UpdatePatient), new { id = createdPatient.PatientID }),
+            rel: "update",
+            method: "PUT"));
+
+        createdPatient.Links.Add(new Link(
+            href: Url.Action(nameof(DeletePatient), new { id = createdPatient.PatientID }),
+            rel: "delete",
+            method: "DELETE"));
+        
+        
+        return Ok(createdPatient);
+    }
+    
     // GET: api/patients/5
     [HttpGet("{id}", Name = nameof(GetPatientById))]
     public async Task<ActionResult<PatientDto>> GetPatientById(int id)
