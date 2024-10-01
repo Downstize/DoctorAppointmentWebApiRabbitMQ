@@ -12,6 +12,15 @@ public class ApplicationDbContext : DbContext
     }
     
     public DbSet<Patient> Patients { get; set; }
-    public DbSet<Specializations> Specializations { get; set; }
+    public DbSet<Specialization> Specializations { get; set; }
+    
+    public DbSet<Doctor> Doctors { get; set; }
+    
+    public DbSet<Appointment> Appointments { get; set; }
+    
+    public DbSet<DoctorSchedule> DoctorSchedules { get; set; }
+    
+    public DbSet<Department> Departments { get; set; }
 }
+
 

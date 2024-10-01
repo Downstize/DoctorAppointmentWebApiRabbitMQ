@@ -9,17 +9,30 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="532784e5-f5ce-4866-a680-971d1076f7ad" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Controllers/RootController.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Controllers/SpecializationsController.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DTOs/SpecializationsDto.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Models/Specializations.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.DoctorAppointmentWebApi/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.DoctorAppointmentWebApi/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.DoctorAppointmentWebApi/.idea/dataSources/fc96d273-78c5-4fbd-9777-1c944fdc8a02.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.DoctorAppointmentWebApi/.idea/dataSources/fc96d273-78c5-4fbd-9777-1c944fdc8a02/storage_v2/_src_/database/postgres.edMnLQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.DoctorAppointmentWebApi/.idea/dataSources/fc96d273-78c5-4fbd-9777-1c944fdc8a02/storage_v2/_src_/database/postgres.edMnLQ/schema/public.abK9xQ.meta" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/Controllers/AppointmentController.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Controllers/DepartmentController.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Controllers/DoctorController.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Controllers/DoctorScheduleController.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DTOs/AppointmentDto.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DTOs/DepartmentDto.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DTOs/DoctorDto.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DTOs/DoctorScheduleDto.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Models/Appointment.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Models/Department.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Models/Doctor.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Models/DoctorSchedule.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.DoctorAppointmentWebApi/.idea/dataSources/d34d600f-e05e-4fc0-b331-cb67f10edb3e.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.DoctorAppointmentWebApi/.idea/dataSources/d34d600f-e05e-4fc0-b331-cb67f10edb3e.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.DoctorAppointmentWebApi/.idea/dataSources/d34d600f-e05e-4fc0-b331-cb67f10edb3e/storage_v2/_src_/database/doctorAppointment.ANldTA/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.DoctorAppointmentWebApi/.idea/dataSources/d34d600f-e05e-4fc0-b331-cb67f10edb3e/storage_v2/_src_/database/doctorAppointment.ANldTA/schema/public.abK9xQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.DoctorAppointmentWebApi/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.DoctorAppointmentWebApi/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ApplicationDbContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ApplicationDbContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/PatientsController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/PatientsController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/PatientsController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/PatientController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/RootController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/Root/RootController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/SpecializationsController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/SpecializationController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DTOs/PatientDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DTOs/PatientDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DTOs/SpecializationsDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DTOs/SpecializationDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DoctorAppointmentWebApi.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/DoctorAppointmentWebApi.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/Patient.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Patient.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/Specializations.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/Specialization.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,7 +69,9 @@
   &quot;associatedIndex&quot;: 0
 }</component>
   <component name="ProjectId" id="2mLxmKpqNKOjqUy6tkmb72OXuo4" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -122,7 +137,11 @@
       <updated>1726869816033</updated>
       <workItem from="1726869817057" duration="8136000" />
       <workItem from="1727188176547" duration="1395000" />
-      <workItem from="1727275344670" duration="7341000" />
+      <workItem from="1727275344670" duration="17111000" />
+      <workItem from="1727360980090" duration="175000" />
+      <workItem from="1727361178582" duration="899000" />
+      <workItem from="1727528791857" duration="1850000" />
+      <workItem from="1727730652213" duration="2308000" />
     </task>
     <task id="LOCAL-00001" summary="Init">
       <option name="closed" value="true" />
@@ -140,7 +159,15 @@
       <option name="project" value="LOCAL" />
       <updated>1726874891071</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Added: RootController.cs, SpecializationsController.cs &amp; Models &amp; DTO's">
+      <option name="closed" value="true" />
+      <created>1727337760808</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1727337760808</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -153,6 +180,7 @@
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="Init" />
     <MESSAGE value="We can get a list of patients now. And find a patient by id" />
-    <option name="LAST_COMMIT_MESSAGE" value="We can get a list of patients now. And find a patient by id" />
+    <MESSAGE value="Added: RootController.cs, SpecializationsController.cs &amp; Models &amp; DTO's" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added: RootController.cs, SpecializationsController.cs &amp; Models &amp; DTO's" />
   </component>
 </project>

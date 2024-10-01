@@ -8,7 +8,7 @@ public class Patient
 {
     [Key]
     [Column("patientid")]
-    public int PatientID { get; set; }
+    public Guid PatientID { get; set; }
 
     [Column("firstname")]
     public string FirstName { get; set; }
