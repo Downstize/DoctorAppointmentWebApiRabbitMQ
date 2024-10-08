@@ -16,45 +16,52 @@ public class AppointmentController : ControllerBase
         _context = context;
     }
 
-    [HttpGet]
+    [HttpGet(Name = nameof(GetAppointments))]
     public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetAppointments()
     {
-        var appointments = await _context.Appointments.Include(a => a.Doctor).Include(a => a.Patient).ToListAsync();
+        var appointments = await _context.Appointments
+                                         .Include(a => a.Doctor)
+                                         .Include(a => a.Patient)
+                                         .ToListAsync();
 
-        var appointmentDtos = appointments.Select(appointment => new AppointmentDto
+        var appointmentDtos = appointments.Select(appointment => CreateAppointmentDtoWithLinks(appointment)).ToList();
+
+        var response = new
         {
-            AppointmentId = appointment.AppointmentId,
-            PatientId = appointment.PatientId,
-            DoctorId = appointment.DoctorId,
-            AppointmentDateTime = appointment.AppointmentDateTime,
-            Status = appointment.Status,
-            Notes = appointment.Notes
-        }).ToList();
+            _links = new
+            {
+                self = new Link(Url.Action(nameof(GetAppointments))!, "self", "GET"),
+                create = new Link(Url.Action(nameof(CreateAppointment))!, "create-appointment", "POST")
+            },
+            appointments = appointmentDtos
+        };
 
-        
-
-        foreach (var appointmentDto in appointmentDtos)
-        {
-            appointmentDto.Links.Add(new Link(
-                href: Url.Action(nameof(GetAppointmentById), new { id = appointmentDto.AppointmentId }),
-                rel: "self",
-                method: "GET"));
-
-            appointmentDto.Links.Add(new Link(
-                href: Url.Action(nameof(UpdateAppointment), new { id = appointmentDto.AppointmentId }),
-                rel: "update",
-                method: "PUT"));
-
-            appointmentDto.Links.Add(new Link(
-                href: Url.Action(nameof(DeleteAppointment), new { id = appointmentDto.AppointmentId }),
-                rel: "delete",
-                method: "DELETE"));
-        }
-        
-        return Ok(appointmentDtos);
+        return Ok(response);
     }
 
-    [HttpPost("Create a new appointment", Name = nameof(CreateAppointment))]
+    [HttpGet("{id}", Name = nameof(GetAppointmentById))]
+    public async Task<ActionResult<AppointmentDto>> GetAppointmentById(Guid id)
+    {
+        var appointment = await _context.Appointments
+                                        .Include(a => a.Doctor)
+                                        .Include(a => a.Patient)
+                                        .FirstOrDefaultAsync(a => a.AppointmentId == id);
+        if (appointment == null) return NotFound();
+
+        var appointmentDto = CreateAppointmentDtoWithLinks(appointment);
+        return Ok(new
+        {
+            appointment = appointmentDto,
+            _links = new
+            {
+                self = new Link(Url.Action(nameof(GetAppointmentById), new { id = appointment.AppointmentId })!, "self", "GET"),
+                update = new Link(Url.Action(nameof(UpdateAppointment), new { id = appointment.AppointmentId })!, "update", "PUT"),
+                delete = new Link(Url.Action(nameof(DeleteAppointment), new { id = appointment.AppointmentId })!, "delete", "DELETE")
+            }
+        });
+    }
+
+    [HttpPost(Name = nameof(CreateAppointment))]
     public async Task<ActionResult<AppointmentDto>> CreateAppointment(AppointmentDto appointmentDto)
     {
         var appointment = new Appointment
@@ -69,79 +76,23 @@ public class AppointmentController : ControllerBase
         _context.Appointments.Add(appointment);
         await _context.SaveChangesAsync();
 
-        var newAppointmentDto = new AppointmentDto
+        var newAppointmentDto = CreateAppointmentDtoWithLinks(appointment);
+
+        return CreatedAtAction(nameof(GetAppointmentById), new { id = appointment.AppointmentId }, new
         {
-            PatientId = appointmentDto.PatientId,
-            DoctorId = appointmentDto.DoctorId,
-            AppointmentDateTime = appointmentDto.AppointmentDateTime,
-            Status = appointmentDto.Status,
-            Notes = appointmentDto.Notes
-        };
-
-        newAppointmentDto.Links.Add(new Link(
-            href: Url.Action(nameof(GetAppointmentById), new { id = appointmentDto.AppointmentId }),
-            rel: "self",
-            method: "GET"
-            ));
-        
-        newAppointmentDto.Links.Add(new Link(
-            href: Url.Action(nameof(UpdateAppointment), new { id = appointmentDto.AppointmentId }),
-            rel: "update",
-            method: "PUT"
-            ));
-        
-        newAppointmentDto.Links.Add(new Link(
-            href: Url.Action(nameof(DeleteAppointment), new { id = appointmentDto.AppointmentId }),
-            rel: "delete",
-            method: "DELETE"
-            ));
-        
-
-        return CreatedAtAction(nameof(GetAppointmentById), new { id = appointment.AppointmentId }, appointmentDto);
+            appointment = newAppointmentDto,
+            _links = new
+            {
+                self = new Link(Url.Action(nameof(GetAppointmentById), new { id = appointment.AppointmentId })!, "self", "GET"),
+                update = new Link(Url.Action(nameof(UpdateAppointment), new { id = appointment.AppointmentId })!, "update", "PUT"),
+                delete = new Link(Url.Action(nameof(DeleteAppointment), new { id = appointment.AppointmentId })!, "delete", "DELETE")
+            }
+        });
     }
 
-    [HttpGet("{id}", Name = nameof(GetAppointmentById))]
-    public async Task<ActionResult<AppointmentDto>> GetAppointmentById(Guid id)
-    {
-        var appointment = await _context.Appointments.Include(a => a.Doctor).Include(a => a.Patient).FirstOrDefaultAsync(a => a.AppointmentId.ToString() == id.ToString());
-        if (appointment == null) return NotFound();
-
-        var appointmentDto = new AppointmentDto
-        {
-            AppointmentId = appointment.AppointmentId,
-            PatientId = appointment.PatientId,
-            DoctorId = appointment.DoctorId,
-            AppointmentDateTime = appointment.AppointmentDateTime,
-            Status = appointment.Status,
-            Notes = appointment.Notes
-        };
-        
-        appointmentDto.Links.Add(new Link(
-            href: Url.Action(nameof(GetAppointmentById), new { id = appointmentDto.AppointmentId }),
-            rel: "self",
-            method: "GET"
-            ));
-        
-        appointmentDto.Links.Add(new Link(
-            href: Url.Action(nameof(UpdateAppointment), new {id = appointmentDto.AppointmentId}),
-            rel: "update",
-            method: "PUT"
-            ));
-
-        appointmentDto.Links.Add(new Link(
-            href:Url.Action(nameof(DeleteAppointment), new {id = appointmentDto.AppointmentId}),
-            rel: "delete",
-            method: "DELETE"
-            ));
-        
-        return Ok(appointmentDto);
-    }
-
-    [HttpPut("{id}")]
+    [HttpPut("{id}", Name = nameof(UpdateAppointment))]
     public async Task<IActionResult> UpdateAppointment(Guid id, AppointmentDto appointmentDto)
     {
-        if (id.ToString() != appointmentDto.AppointmentId.ToString()) return BadRequest();
-
         var appointment = await _context.Appointments.FindAsync(id);
         if (appointment == null) return NotFound();
 
@@ -152,10 +103,21 @@ public class AppointmentController : ControllerBase
         appointment.Notes = appointmentDto.Notes;
 
         await _context.SaveChangesAsync();
-        return NoContent();
+
+        var updatedAppointmentDto = CreateAppointmentDtoWithLinks(appointment);
+        return Ok(new
+        {
+            appointment = updatedAppointmentDto,
+            _links = new
+            {
+                self = new Link(Url.Action(nameof(GetAppointmentById), new { id = appointment.AppointmentId })!, "self", "GET"),
+                update = new Link(Url.Action(nameof(UpdateAppointment), new { id = appointment.AppointmentId })!, "update", "PUT"),
+                delete = new Link(Url.Action(nameof(DeleteAppointment), new { id = appointment.AppointmentId })!, "delete", "DELETE")
+            }
+        });
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id}", Name = nameof(DeleteAppointment))]
     public async Task<IActionResult> DeleteAppointment(Guid id)
     {
         var appointment = await _context.Appointments.FindAsync(id);
@@ -164,6 +126,40 @@ public class AppointmentController : ControllerBase
         _context.Appointments.Remove(appointment);
         await _context.SaveChangesAsync();
 
-        return NoContent();
+        var response = new
+        {
+            message = $"Appointment {appointment.AppointmentId} deleted",
+            _links = new
+            {
+                getAllAppointments = new Link(Url.Action(nameof(GetAppointments))!, "get-all-appointments", "GET"),
+                createAppointment = new Link(Url.Action(nameof(CreateAppointment))!, "create-appointment", "POST")
+            }
+        };
+
+        return Ok(response);
+    }
+
+    // Вспомогательный метод для создания DTO с включенными ссылками HAL
+    private AppointmentDto CreateAppointmentDtoWithLinks(Appointment appointment)
+    {
+        var appointmentDto = new AppointmentDto
+        {
+            AppointmentId = appointment.AppointmentId,
+            PatientId = appointment.PatientId,
+            DoctorId = appointment.DoctorId,
+            AppointmentDateTime = appointment.AppointmentDateTime,
+            Status = appointment.Status,
+            Notes = appointment.Notes,
+            Links = new List<Link>
+            {
+                new Link(Url.Action(nameof(GetAppointmentById), new { id = appointment.AppointmentId })!, "self", "GET"),
+                new Link(Url.Action(nameof(UpdateAppointment), new { id = appointment.AppointmentId })!, "update", "PUT"),
+                new Link(Url.Action(nameof(DeleteAppointment), new { id = appointment.AppointmentId })!, "delete", "DELETE"),
+                new Link(Url.Action("GetDoctorById", "Doctor", new { id = appointment.DoctorId })!, "doctor", "GET"),
+                new Link(Url.Action("GetPatientById", "Patient", new { id = appointment.PatientId })!, "patient", "GET")
+            }
+        };
+
+        return appointmentDto;
     }
 }

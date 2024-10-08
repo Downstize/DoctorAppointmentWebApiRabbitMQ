@@ -18,7 +18,7 @@ public class RootController : ControllerBase
 
             new Link(
                 href: Url.Action(nameof(SpecializationController.GetSpecializations), "Specialization"),
-                rel: "specializations",
+                rel: "get-specializations",
                 method: "GET"),
 
             new Link(
@@ -28,13 +28,43 @@ public class RootController : ControllerBase
 
             new Link(
                 href: Url.Action(nameof(DoctorController.GetDoctors), "Doctor"),
-                rel: "doctors",
+                rel: "get-doctors",
                 method: "GET"),
-            
+
+            new Link(
+                href: Url.Action(nameof(DoctorController.CreateDoctor), "Doctor"),
+                rel: "create-doctor",
+                method: "POST"),
+
             new Link(
                 href: Url.Action(nameof(AppointmentController.GetAppointments), "Appointment"),
-                rel: "appointments",
-                method: "GET")
+                rel: "get-appointments",
+                method: "GET"),
+
+            new Link(
+                href: Url.Action(nameof(AppointmentController.CreateAppointment), "Appointment"),
+                rel: "create-appointment",
+                method: "POST"),
+
+            new Link(
+                href: Url.Action(nameof(PatientController.GetPatients), "Patient"),
+                rel: "get-patients",
+                method: "GET"),
+
+            new Link(
+                href: Url.Action(nameof(PatientController.CreatePatient), "Patient"),
+                rel: "create-patient",
+                method: "POST"),
+
+            new Link(
+                href: Url.Action(nameof(DoctorScheduleController.GetSchedules), "DoctorSchedule"),
+                rel: "get-doctor-schedules",
+                method: "GET"),
+
+            new Link(
+                href: Url.Action(nameof(DoctorScheduleController.CreateSchedule), "DoctorSchedule"),
+                rel: "create-doctor-schedule",
+                method: "POST")
         };
 
         return Ok(links);

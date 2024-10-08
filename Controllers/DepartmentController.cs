@@ -16,25 +16,52 @@ public class DepartmentController : ControllerBase
         _context = context;
     }
 
-    [HttpGet]
+    [HttpGet(Name = nameof(GetDepartments))]
     public async Task<ActionResult<IEnumerable<DepartmentDto>>> GetDepartments()
     {
         var departments = await _context.Departments.ToListAsync();
-        var departmentDtos = departments.Select(department => new DepartmentDto
-        {
-            DepartmentId = department.DepartmentId,
-            Name = department.Name,
-            Location = department.Location
-        }).ToList();
+        var departmentDtos = departments.Select(department => CreateDepartmentDtoWithLinks(department)).ToList();
 
-        return Ok(departmentDtos);
+        var response = new
+        {
+            _links = new
+            {
+                self = new Link(Url.Action(nameof(GetDepartments))!, "self", "GET"),
+                create = new Link(Url.Action(nameof(CreateDepartment))!, "create-department", "POST")
+            },
+            departments = departmentDtos
+        };
+
+        return Ok(response);
     }
 
-    [HttpPost]
+    [HttpGet("{id}", Name = nameof(GetDepartmentById))]
+    public async Task<ActionResult<DepartmentDto>> GetDepartmentById(Guid id)
+    {
+        var department = await _context.Departments.FindAsync(id);
+        if (department == null) return NotFound();
+
+        var departmentDto = CreateDepartmentDtoWithLinks(department);
+        var response = new
+        {
+            department = departmentDto,
+            _links = new
+            {
+                self = new Link(Url.Action(nameof(GetDepartmentById), new { id = department.DepartmentId })!, "self", "GET"),
+                update = new Link(Url.Action(nameof(UpdateDepartment), new { id = department.DepartmentId })!, "update", "PUT"),
+                delete = new Link(Url.Action(nameof(DeleteDepartment), new { id = department.DepartmentId })!, "delete", "DELETE")
+            }
+        };
+
+        return Ok(response);
+    }
+
+    [HttpPost(Name = nameof(CreateDepartment))]
     public async Task<ActionResult<DepartmentDto>> CreateDepartment(DepartmentDto departmentDto)
     {
         var department = new Department
         {
+            DepartmentId = Guid.NewGuid(),
             Name = departmentDto.Name,
             Location = departmentDto.Location
         };
@@ -42,30 +69,24 @@ public class DepartmentController : ControllerBase
         _context.Departments.Add(department);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetDepartmentById), new { id = department.DepartmentId }, departmentDto);
-    }
-
-    [HttpGet("{id}", Name = nameof(GetDepartmentById))]
-    public async Task<ActionResult<DepartmentDto>> GetDepartmentById(int id)
-    {
-        var department = await _context.Departments.FindAsync(id);
-        if (department == null) return NotFound();
-
-        var departmentDto = new DepartmentDto
+        var newDepartmentDto = CreateDepartmentDtoWithLinks(department);
+        var response = new
         {
-            DepartmentId = department.DepartmentId,
-            Name = department.Name,
-            Location = department.Location
+            department = newDepartmentDto,
+            _links = new
+            {
+                self = new Link(Url.Action(nameof(GetDepartmentById), new { id = department.DepartmentId })!, "self", "GET"),
+                update = new Link(Url.Action(nameof(UpdateDepartment), new { id = department.DepartmentId })!, "update", "PUT"),
+                delete = new Link(Url.Action(nameof(DeleteDepartment), new { id = department.DepartmentId })!, "delete", "DELETE")
+            }
         };
 
-        return Ok(departmentDto);
+        return CreatedAtAction(nameof(GetDepartmentById), new { id = department.DepartmentId }, response);
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateDepartment(int id, DepartmentDto departmentDto)
+    [HttpPut("{id}", Name = nameof(UpdateDepartment))]
+    public async Task<IActionResult> UpdateDepartment(Guid id, DepartmentDto departmentDto)
     {
-        if (id.ToString() != departmentDto.DepartmentId.ToString()) return BadRequest();
-
         var department = await _context.Departments.FindAsync(id);
         if (department == null) return NotFound();
 
@@ -73,11 +94,24 @@ public class DepartmentController : ControllerBase
         department.Location = departmentDto.Location;
 
         await _context.SaveChangesAsync();
-        return NoContent();
+
+        var updatedDepartmentDto = CreateDepartmentDtoWithLinks(department);
+        var response = new
+        {
+            department = updatedDepartmentDto,
+            _links = new
+            {
+                self = new Link(Url.Action(nameof(GetDepartmentById), new { id = department.DepartmentId })!, "self", "GET"),
+                update = new Link(Url.Action(nameof(UpdateDepartment), new { id = department.DepartmentId })!, "update", "PUT"),
+                delete = new Link(Url.Action(nameof(DeleteDepartment), new { id = department.DepartmentId })!, "delete", "DELETE")
+            }
+        };
+
+        return Ok(response);
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteDepartment(int id)
+    [HttpDelete("{id}", Name = nameof(DeleteDepartment))]
+    public async Task<IActionResult> DeleteDepartment(Guid id)
     {
         var department = await _context.Departments.FindAsync(id);
         if (department == null) return NotFound();
@@ -85,6 +119,35 @@ public class DepartmentController : ControllerBase
         _context.Departments.Remove(department);
         await _context.SaveChangesAsync();
 
-        return NoContent();
+        var response = new
+        {
+            message = $"Department {department.DepartmentId} deleted",
+            _links = new
+            {
+                getAllDepartments = new Link(Url.Action(nameof(GetDepartments))!, "get-all-departments", "GET"),
+                createDepartment = new Link(Url.Action(nameof(CreateDepartment))!, "create-department", "POST")
+            }
+        };
+
+        return Ok(response);
+    }
+
+    // Вспомогательный метод для создания DTO с включенными ссылками HAL
+    private DepartmentDto CreateDepartmentDtoWithLinks(Department department)
+    {
+        var departmentDto = new DepartmentDto
+        {
+            DepartmentId = department.DepartmentId,
+            Name = department.Name,
+            Location = department.Location,
+            Links = new List<Link>
+            {
+                new Link(Url.Action(nameof(GetDepartmentById), new { id = department.DepartmentId })!, "self", "GET"),
+                new Link(Url.Action(nameof(UpdateDepartment), new { id = department.DepartmentId })!, "update", "PUT"),
+                new Link(Url.Action(nameof(DeleteDepartment), new { id = department.DepartmentId })!, "delete", "DELETE")
+            }
+        };
+
+        return departmentDto;
     }
 }

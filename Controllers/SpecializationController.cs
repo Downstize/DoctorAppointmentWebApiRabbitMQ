@@ -1,10 +1,9 @@
 using DoctorAppointmentWebApi.DTOs;
 using DoctorAppointmentWebApi.Models;
-
-namespace DoctorAppointmentWebApi.Controllers;
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
+namespace DoctorAppointmentWebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -16,165 +15,132 @@ public class SpecializationController : ControllerBase
     {
         _context = context;
     }
-    
-    [HttpGet]
+
+    [HttpGet(Name = nameof(GetSpecializations))]
     public async Task<ActionResult<IEnumerable<SpecializationDto>>> GetSpecializations()
     {
         var specializations = await _context.Specializations.ToListAsync();
 
-        var specializationsDtos = specializations.Select(specialization => new SpecializationDto
-        {
-            SpecializationId = specialization.SpecializationId,
-            SpecializationName = specialization.SpecializationName
-            
-        }).ToList();
+        var specializationDtos = specializations.Select(specialization => CreateSpecializationDtoWithLinks(specialization)).ToList();
 
-        foreach (var specializationsDto in specializationsDtos)
+        var response = new
         {
-            specializationsDto.Links.Add(new Link(
-                href: Url.Action(nameof(GetSpecializationById), new { id = specializationsDto.SpecializationId }),
-                rel: "self",
-                method: "GET"));
-        
-            specializationsDto.Links.Add(new Link(
-                href: Url.Action(nameof(UpdateSpecialization), new { id = specializationsDto.SpecializationId }),
-                rel: "update",
-                method: "PUT"));
-        
-            specializationsDto.Links.Add(new Link(
-                href: Url.Action(nameof(DeleteSpecialization), new { id = specializationsDto.SpecializationId }),
-                rel: "delete",
-                method: "DELETE"));
-        }
+            _links = new
+            {
+                self = new Link(Url.Action(nameof(GetSpecializations))!, "self", "GET"),
+                create = new Link(Url.Action(nameof(CreateSpecialization))!, "create-specialization", "POST")
+            },
+            specializations = specializationDtos
+        };
 
-        return Ok(specializationsDtos);
+        return Ok(response);
     }
-    
-    [HttpPost("Create a new specialization", Name = nameof(CreateSpecialization))]
+
+    [HttpGet("{id}", Name = nameof(GetSpecializationById))]
+    public async Task<ActionResult<SpecializationDto>> GetSpecializationById(Guid id)
+    {
+        var specialization = await _context.Specializations.FindAsync(id);
+
+        if (specialization == null) return NotFound();
+
+        var specializationDto = CreateSpecializationDtoWithLinks(specialization);
+        return Ok(new
+        {
+            specialization = specializationDto,
+            _links = new
+            {
+                self = new Link(Url.Action(nameof(GetSpecializationById), new { id = specialization.SpecializationId })!, "self", "GET"),
+                update = new Link(Url.Action(nameof(UpdateSpecialization), new { id = specialization.SpecializationId })!, "update", "PUT"),
+                delete = new Link(Url.Action(nameof(DeleteSpecialization), new { id = specialization.SpecializationId })!, "delete", "DELETE")
+            }
+        });
+    }
+
+    [HttpPost(Name = nameof(CreateSpecialization))]
     public async Task<ActionResult<SpecializationDto>> CreateSpecialization(SpecializationDto specializationDto)
     {
         var specialization = new Specialization
         {
-            SpecializationId = specializationDto.SpecializationId,
-            SpecializationName = specializationDto.SpecializationName,
+            SpecializationName = specializationDto.SpecializationName
         };
 
         _context.Specializations.Add(specialization);
         await _context.SaveChangesAsync();
 
-        var createedSpecialization = new SpecializationDto
+        var createdSpecializationDto = CreateSpecializationDtoWithLinks(specialization);
+
+        return CreatedAtAction(nameof(GetSpecializationById), new { id = specialization.SpecializationId }, new
         {
-            SpecializationId = specialization.SpecializationId,
-            SpecializationName = specialization.SpecializationName
-        };
-        
-        createedSpecialization.Links.Add(new Link(
-            href: Url.Action(nameof(GetSpecializationById), new { id = createedSpecialization.SpecializationId }),
-            rel: "self",
-            method: "GET"));
-
-        createedSpecialization.Links.Add(new Link(
-            href: Url.Action(nameof(UpdateSpecialization), new { id = createedSpecialization.SpecializationId }),
-            rel: "update",
-            method: "PUT"));
-
-        createedSpecialization.Links.Add(new Link(
-            href: Url.Action(nameof(DeleteSpecialization), new { id = createedSpecialization.SpecializationId }),
-            rel: "delete",
-            method: "DELETE"));
-
-        return Ok(createedSpecialization);
+            specialization = createdSpecializationDto,
+            _links = new
+            {
+                self = new Link(Url.Action(nameof(GetSpecializationById), new { id = createdSpecializationDto.SpecializationId })!, "self", "GET"),
+                update = new Link(Url.Action(nameof(UpdateSpecialization), new { id = createdSpecializationDto.SpecializationId })!, "update", "PUT"),
+                delete = new Link(Url.Action(nameof(DeleteSpecialization), new { id = createdSpecializationDto.SpecializationId })!, "delete", "DELETE")
+            }
+        });
     }
-    
-    [HttpGet("{id}", Name = nameof(GetSpecializationById))]
-    public async Task<ActionResult<SpecializationDto>> GetSpecializationById(int id)
-    {
-        var specialization = await _context.Specializations.FindAsync(id);
 
-        if (specialization == null)
-        {
-            return NotFound();
-        }
-
-        var specializationDto = new SpecializationDto
-        {
-            SpecializationId = specialization.SpecializationId,
-            SpecializationName = specialization.SpecializationName
-        };
-        
-        specializationDto.Links.Add(new Link(
-            href: Url.Action(nameof(GetSpecializationById), new { id = specializationDto.SpecializationId }),
-            rel: "self",
-            method: "GET"));
-
-        specializationDto.Links.Add(new Link(
-            href: Url.Action(nameof(UpdateSpecialization), new { id = specializationDto.SpecializationId }),
-            rel: "update",
-            method: "PUT"));
-
-        specializationDto.Links.Add(new Link(
-            href: Url.Action(nameof(DeleteSpecialization), new { id = specializationDto.SpecializationId }),
-            rel: "delete",
-            method: "DELETE"));
-
-        return Ok(specializationDto);
-    }
-    
     [HttpPut("{id}", Name = nameof(UpdateSpecialization))]
-    public async Task<IActionResult> UpdateSpecialization(int id, SpecializationDto specializationDto)
+    public async Task<IActionResult> UpdateSpecialization(Guid id, SpecializationDto specializationDto)
     {
-        if (id.ToString() != specializationDto.SpecializationId.ToString())
-        {
-            return BadRequest();
-        }
-
         var specialization = await _context.Specializations.FindAsync(id);
-        if (specialization == null)
-        {
-            return NotFound();
-        }
-        
+        if (specialization == null) return NotFound();
+
         specialization.SpecializationName = specializationDto.SpecializationName;
 
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!SpecializationExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
-        }
+        await _context.SaveChangesAsync();
 
-        return NoContent();
+        var updatedSpecializationDto = CreateSpecializationDtoWithLinks(specialization);
+        return Ok(new
+        {
+            specialization = updatedSpecializationDto,
+            _links = new
+            {
+                self = new Link(Url.Action(nameof(GetSpecializationById), new { id = specialization.SpecializationId })!, "self", "GET"),
+                update = new Link(Url.Action(nameof(UpdateSpecialization), new { id = specialization.SpecializationId })!, "update", "PUT"),
+                delete = new Link(Url.Action(nameof(DeleteSpecialization), new { id = specialization.SpecializationId })!, "delete", "DELETE")
+            }
+        });
     }
-    
-    
+
     [HttpDelete("{id}", Name = nameof(DeleteSpecialization))]
-    public async Task<IActionResult> DeleteSpecialization(int id)
+    public async Task<IActionResult> DeleteSpecialization(Guid id)
     {
         var specialization = await _context.Specializations.FindAsync(id);
-        if (specialization == null)
-        {
-            return NotFound();
-        }
+        if (specialization == null) return NotFound();
 
         _context.Specializations.Remove(specialization);
         await _context.SaveChangesAsync();
 
-        return NoContent();
+        var response = new
+        {
+            message = $"Specialization {specialization.SpecializationId} deleted",
+            _links = new
+            {
+                getAllSpecializations = new Link(Url.Action(nameof(GetSpecializations))!, "get-all-specializations", "GET"),
+                createSpecialization = new Link(Url.Action(nameof(CreateSpecialization))!, "create-specialization", "POST")
+            }
+        };
+
+        return Ok(response);
     }
-    
-    
-    private bool SpecializationExists(int id)
+
+    // Вспомогательный метод для создания DTO с включенными ссылками HAL
+    private SpecializationDto CreateSpecializationDtoWithLinks(Specialization specialization)
     {
-        return _context.Specializations.Any(e => e.SpecializationId.ToString() == id.ToString());
+        var specializationDto = new SpecializationDto
+        {
+            SpecializationId = specialization.SpecializationId,
+            SpecializationName = specialization.SpecializationName,
+            Links = new List<Link>
+            {
+                new Link(Url.Action(nameof(GetSpecializationById), new { id = specialization.SpecializationId })!, "self", "GET"),
+                new Link(Url.Action(nameof(UpdateSpecialization), new { id = specialization.SpecializationId })!, "update", "PUT"),
+                new Link(Url.Action(nameof(DeleteSpecialization), new { id = specialization.SpecializationId })!, "delete", "DELETE")
+            }
+        };
+
+        return specializationDto;
     }
-    
 }

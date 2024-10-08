@@ -1,6 +1,5 @@
 using DoctorAppointmentWebApi.DTOs;
 using DoctorAppointmentWebApi.Models;
-using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,32 +16,31 @@ public class DoctorController : ControllerBase
         _context = context;
     }
 
-    [HttpGet]
+    [HttpGet(Name = nameof(GetDoctors))]
     public async Task<ActionResult<IEnumerable<DoctorDto>>> GetDoctors()
     {
         var doctors = await _context.Doctors.Include(d => d.Specialization).Include(d => d.Department).ToListAsync();
 
-        var doctorDtos = doctors.Select(doctor => new DoctorDto
-        {
-            DoctorId = doctor.DoctorId,
-            FirstName = doctor.FirstName,
-            LastName = doctor.LastName,
-            SpecializationId = doctor.SpecializationId,
-            DepartmentId = doctor.DepartmentId,
-            PhoneNumber = doctor.PhoneNumber,
-            Email = doctor.Email,
-            RoomNumber = doctor.RoomNumber
-        }).ToList();
+        var doctorDtos = doctors.Select(doctor => CreateDoctorDtoWithLinks(doctor)).ToList();
 
-        return Ok(doctorDtos);
+        var response = new
+        {
+            _links = new
+            {
+                self = new Link(Url.Action(nameof(GetDoctors))!, "self", "GET"),
+                create = new Link(Url.Action(nameof(CreateDoctor))!, "create-doctor", "POST")
+            },
+            doctors = doctorDtos
+        };
+
+        return Ok(response);
     }
 
-    [HttpPost]
+    [HttpPost(Name = nameof(CreateDoctor))]
     public async Task<ActionResult<DoctorDto>> CreateDoctor(DoctorDto doctorDto)
     {
         var doctor = new Doctor
         {
-            DoctorId = doctorDto.DoctorId,
             FirstName = doctorDto.FirstName,
             LastName = doctorDto.LastName,
             SpecializationId = doctorDto.SpecializationId,
@@ -55,7 +53,18 @@ public class DoctorController : ControllerBase
         _context.Doctors.Add(doctor);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetDoctorById), new { id = doctor.DoctorId }, doctorDto);
+        var newDoctorDto = CreateDoctorDtoWithLinks(doctor);
+
+        return CreatedAtAction(nameof(GetDoctorById), new { id = doctor.DoctorId }, new
+        {
+            doctor = newDoctorDto,
+            _links = new
+            {
+                self = new Link(Url.Action(nameof(GetDoctorById), new { id = doctor.DoctorId })!, "self", "GET"),
+                update = new Link(Url.Action(nameof(UpdateDoctor), new { id = doctor.DoctorId })!, "update", "PUT"),
+                delete = new Link(Url.Action(nameof(DeleteDoctor), new { id = doctor.DoctorId })!, "delete", "DELETE")
+            }
+        });
     }
 
     [HttpGet("{id}", Name = nameof(GetDoctorById))]
@@ -64,26 +73,25 @@ public class DoctorController : ControllerBase
         var doctor = await _context.Doctors.Include(d => d.Specialization).Include(d => d.Department).FirstOrDefaultAsync(d => d.DoctorId == id);
         if (doctor == null) return NotFound();
 
-        var doctorDto = new DoctorDto
+        var doctorDto = CreateDoctorDtoWithLinks(doctor);
+
+        var response = new
         {
-            DoctorId = doctor.DoctorId,
-            FirstName = doctor.FirstName,
-            LastName = doctor.LastName,
-            SpecializationId = doctor.SpecializationId,
-            DepartmentId = doctor.DepartmentId,
-            PhoneNumber = doctor.PhoneNumber,
-            Email = doctor.Email,
-            RoomNumber = doctor.RoomNumber
+            doctor = doctorDto,
+            _links = new
+            {
+                self = new Link(Url.Action(nameof(GetDoctorById), new { id = doctor.DoctorId })!, "self", "GET"),
+                update = new Link(Url.Action(nameof(UpdateDoctor), new { id = doctor.DoctorId })!, "update", "PUT"),
+                delete = new Link(Url.Action(nameof(DeleteDoctor), new { id = doctor.DoctorId })!, "delete", "DELETE")
+            }
         };
 
-        return Ok(doctorDto);
+        return Ok(response);
     }
 
-    [HttpPut("Update doctor by {id}", Name = nameof(UpdateDoctor))]
-    public async Task<IActionResult> UpdateDoctor( Guid id, DoctorDto doctorDto)
+    [HttpPut("{id}", Name = nameof(UpdateDoctor))]
+    public async Task<IActionResult> UpdateDoctor(Guid id, DoctorDto doctorDto)
     {
-        if (id != doctorDto.DoctorId) return BadRequest();
-
         var doctor = await _context.Doctors.FindAsync(id);
         if (doctor == null) return NotFound();
 
@@ -96,11 +104,24 @@ public class DoctorController : ControllerBase
         doctor.RoomNumber = doctorDto.RoomNumber;
 
         await _context.SaveChangesAsync();
-        return NoContent();
+
+        var updatedDoctorDto = CreateDoctorDtoWithLinks(doctor);
+        var response = new
+        {
+            doctor = updatedDoctorDto,
+            _links = new
+            {
+                self = new Link(Url.Action(nameof(GetDoctorById), new { id = doctor.DoctorId })!, "self", "GET"),
+                update = new Link(Url.Action(nameof(UpdateDoctor), new { id = doctor.DoctorId })!, "update", "PUT"),
+                delete = new Link(Url.Action(nameof(DeleteDoctor), new { id = doctor.DoctorId })!, "delete", "DELETE")
+            }
+        };
+
+        return Ok(response);
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteDoctor(int id)
+    [HttpDelete("{id}", Name = nameof(DeleteDoctor))]
+    public async Task<IActionResult> DeleteDoctor(Guid id)
     {
         var doctor = await _context.Doctors.FindAsync(id);
         if (doctor == null) return NotFound();
@@ -108,6 +129,40 @@ public class DoctorController : ControllerBase
         _context.Doctors.Remove(doctor);
         await _context.SaveChangesAsync();
 
-        return NoContent();
+        var response = new
+        {
+            message = $"Doctor {doctor.DoctorId} deleted",
+            _links = new
+            {
+                getAllDoctors = new Link(Url.Action(nameof(GetDoctors))!, "get-all-doctors", "GET"),
+                createDoctor = new Link(Url.Action(nameof(CreateDoctor))!, "create-doctor", "POST")
+            }
+        };
+
+        return Ok(response);
+    }
+
+    // Вспомогательный метод для создания DTO с включенными ссылками HAL
+    private DoctorDto CreateDoctorDtoWithLinks(Doctor doctor)
+    {
+        var doctorDto = new DoctorDto
+        {
+            DoctorId = doctor.DoctorId,
+            FirstName = doctor.FirstName,
+            LastName = doctor.LastName,
+            SpecializationId = doctor.SpecializationId,
+            DepartmentId = doctor.DepartmentId,
+            PhoneNumber = doctor.PhoneNumber,
+            Email = doctor.Email,
+            RoomNumber = doctor.RoomNumber,
+            Links = new List<Link>
+            {
+                new Link(Url.Action(nameof(GetDoctorById), new { id = doctor.DoctorId })!, "self", "GET"),
+                new Link(Url.Action(nameof(UpdateDoctor), new { id = doctor.DoctorId })!, "update", "PUT"),
+                new Link(Url.Action(nameof(DeleteDoctor), new { id = doctor.DoctorId })!, "delete", "DELETE")
+            }
+        };
+
+        return doctorDto;
     }
 }

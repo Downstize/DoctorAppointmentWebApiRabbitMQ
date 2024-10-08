@@ -16,24 +16,27 @@ public class DoctorScheduleController : ControllerBase
         _context = context;
     }
 
-    [HttpGet]
+    [HttpGet(Name = nameof(GetSchedules))]
     public async Task<ActionResult<IEnumerable<DoctorScheduleDto>>> GetSchedules()
     {
         var schedules = await _context.DoctorSchedules.Include(ds => ds.Doctor).ToListAsync();
 
-        var scheduleDtos = schedules.Select(schedule => new DoctorScheduleDto
-        {
-            ScheduleId = schedule.ScheduleId,
-            DoctorId = schedule.DoctorId,
-            AvailableFrom = schedule.AvailableFrom,
-            AvailableTo = schedule.AvailableTo,
-            DayOfWeek = schedule.DayOfWeek
-        }).ToList();
+        var scheduleDtos = schedules.Select(schedule => CreateDoctorScheduleDtoWithLinks(schedule)).ToList();
 
-        return Ok(scheduleDtos);
+        var response = new
+        {
+            _links = new
+            {
+                self = new Link(Url.Action(nameof(GetSchedules))!, "self", "GET"),
+                create = new Link(Url.Action(nameof(CreateSchedule))!, "create-schedule", "POST")
+            },
+            schedules = scheduleDtos
+        };
+
+        return Ok(response);
     }
 
-    [HttpPost]
+    [HttpPost(Name = nameof(CreateSchedule))]
     public async Task<ActionResult<DoctorScheduleDto>> CreateSchedule(DoctorScheduleDto scheduleDto)
     {
         var schedule = new DoctorSchedule
@@ -47,32 +50,47 @@ public class DoctorScheduleController : ControllerBase
         _context.DoctorSchedules.Add(schedule);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetScheduleById), new { id = schedule.ScheduleId }, scheduleDto);
+        var newScheduleDto = CreateDoctorScheduleDtoWithLinks(schedule);
+
+        var response = new
+        {
+            schedule = newScheduleDto,
+            _links = new
+            {
+                self = new Link(Url.Action(nameof(GetScheduleById), new { id = schedule.ScheduleId })!, "self", "GET"),
+                update = new Link(Url.Action(nameof(UpdateSchedule), new { id = schedule.ScheduleId })!, "update", "PUT"),
+                delete = new Link(Url.Action(nameof(DeleteSchedule), new { id = schedule.ScheduleId })!, "delete", "DELETE")
+            }
+        };
+
+        return CreatedAtAction(nameof(GetScheduleById), new { id = schedule.ScheduleId }, response);
     }
 
     [HttpGet("{id}", Name = nameof(GetScheduleById))]
-    public async Task<ActionResult<DoctorScheduleDto>> GetScheduleById(int id)
+    public async Task<ActionResult<DoctorScheduleDto>> GetScheduleById(Guid id)
     {
-        var schedule = await _context.DoctorSchedules.Include(ds => ds.Doctor).FirstOrDefaultAsync(ds => ds.ScheduleId.ToString() == id.ToString());
+        var schedule = await _context.DoctorSchedules.Include(ds => ds.Doctor).FirstOrDefaultAsync(ds => ds.ScheduleId == id);
         if (schedule == null) return NotFound();
 
-        var scheduleDto = new DoctorScheduleDto
+        var scheduleDto = CreateDoctorScheduleDtoWithLinks(schedule);
+
+        var response = new
         {
-            ScheduleId = schedule.ScheduleId,
-            DoctorId = schedule.DoctorId,
-            AvailableFrom = schedule.AvailableFrom,
-            AvailableTo = schedule.AvailableTo,
-            DayOfWeek = schedule.DayOfWeek
+            schedule = scheduleDto,
+            _links = new
+            {
+                self = new Link(Url.Action(nameof(GetScheduleById), new { id = schedule.ScheduleId })!, "self", "GET"),
+                update = new Link(Url.Action(nameof(UpdateSchedule), new { id = schedule.ScheduleId })!, "update", "PUT"),
+                delete = new Link(Url.Action(nameof(DeleteSchedule), new { id = schedule.ScheduleId })!, "delete", "DELETE")
+            }
         };
 
-        return Ok(scheduleDto);
+        return Ok(response);
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateSchedule(int id, DoctorScheduleDto scheduleDto)
+    [HttpPut("{id}", Name = nameof(UpdateSchedule))]
+    public async Task<IActionResult> UpdateSchedule(Guid id, DoctorScheduleDto scheduleDto)
     {
-        if (id.ToString() != scheduleDto.ScheduleId.ToString()) return BadRequest();
-
         var schedule = await _context.DoctorSchedules.FindAsync(id);
         if (schedule == null) return NotFound();
 
@@ -82,11 +100,25 @@ public class DoctorScheduleController : ControllerBase
         schedule.DayOfWeek = scheduleDto.DayOfWeek;
 
         await _context.SaveChangesAsync();
-        return NoContent();
+
+        var updatedScheduleDto = CreateDoctorScheduleDtoWithLinks(schedule);
+
+        var response = new
+        {
+            schedule = updatedScheduleDto,
+            _links = new
+            {
+                self = new Link(Url.Action(nameof(GetScheduleById), new { id = schedule.ScheduleId })!, "self", "GET"),
+                update = new Link(Url.Action(nameof(UpdateSchedule), new { id = schedule.ScheduleId })!, "update", "PUT"),
+                delete = new Link(Url.Action(nameof(DeleteSchedule), new { id = schedule.ScheduleId })!, "delete", "DELETE")
+            }
+        };
+
+        return Ok(response);
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteSchedule(int id)
+    [HttpDelete("{id}", Name = nameof(DeleteSchedule))]
+    public async Task<IActionResult> DeleteSchedule(Guid id)
     {
         var schedule = await _context.DoctorSchedules.FindAsync(id);
         if (schedule == null) return NotFound();
@@ -94,6 +126,37 @@ public class DoctorScheduleController : ControllerBase
         _context.DoctorSchedules.Remove(schedule);
         await _context.SaveChangesAsync();
 
-        return NoContent();
+        var response = new
+        {
+            message = $"Doctor schedule {schedule.ScheduleId} deleted",
+            _links = new
+            {
+                getAllSchedules = new Link(Url.Action(nameof(GetSchedules))!, "get-all-schedules", "GET"),
+                createSchedule = new Link(Url.Action(nameof(CreateSchedule))!, "create-schedule", "POST")
+            }
+        };
+
+        return Ok(response);
+    }
+
+    // Вспомогательный метод для создания DTO с включенными ссылками HAL
+    private DoctorScheduleDto CreateDoctorScheduleDtoWithLinks(DoctorSchedule schedule)
+    {
+        var scheduleDto = new DoctorScheduleDto
+        {
+            ScheduleId = schedule.ScheduleId,
+            DoctorId = schedule.DoctorId,
+            AvailableFrom = schedule.AvailableFrom,
+            AvailableTo = schedule.AvailableTo,
+            DayOfWeek = schedule.DayOfWeek,
+            Links = new List<Link>
+            {
+                new Link(Url.Action(nameof(GetScheduleById), new { id = schedule.ScheduleId })!, "self", "GET"),
+                new Link(Url.Action(nameof(UpdateSchedule), new { id = schedule.ScheduleId })!, "update", "PUT"),
+                new Link(Url.Action(nameof(DeleteSchedule), new { id = schedule.ScheduleId })!, "delete", "DELETE")
+            }
+        };
+
+        return scheduleDto;
     }
 }

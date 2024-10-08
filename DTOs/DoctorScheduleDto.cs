@@ -1,7 +1,10 @@
+using System.Text.Json.Serialization;
+
 namespace DoctorAppointmentWebApi.DTOs;
 
 public class DoctorScheduleDto
 {
+    [JsonIgnore]
     public Guid ScheduleId { get; set; }
     
     public Guid DoctorId { get; set; }
