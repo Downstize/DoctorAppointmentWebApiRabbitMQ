@@ -153,8 +153,7 @@ public class PatientController : ControllerBase
 
         return Ok(response);
     }
-
-    // Вспомогательный метод для создания DTO с включенными ссылками HAL
+    
     private PatientDto CreatePatientDtoWithLinks(Patient patient)
     {
         var patientDto = new PatientDto
