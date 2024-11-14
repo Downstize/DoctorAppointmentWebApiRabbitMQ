@@ -1,5 +1,7 @@
 using DoctorAppointmentWebApi.DTOs;
 using DoctorAppointmentWebApi.Models;
+using DoctorAppointmentWebApi.RabbitMQ;
+using EasyNetQ;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,10 +12,12 @@ namespace DoctorAppointmentWebApi.Controllers;
 public class PatientController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+    private readonly IBus _bus;
 
-    public PatientController(ApplicationDbContext context)
+    public PatientController(ApplicationDbContext context, IBus bus)
     {
         _context = context;
+        _bus = bus;
     }
     
     [HttpGet(Name = nameof(GetPatients))]
@@ -36,6 +40,12 @@ public class PatientController : ControllerBase
         return Ok(response);
     }
 
+    private async Task PublishNewPatient(Patient patient)
+    {
+        var message = patient.ToNewPatientMessage();
+        await _bus.PubSub.PublishAsync(message);
+    }
+
     [HttpPost(Name = nameof(CreatePatient))]
     public async Task<ActionResult<PatientDto>> CreatePatient(PatientDto patientDto)
     {
@@ -53,7 +63,7 @@ public class PatientController : ControllerBase
         
         _context.Patients.Add(patient);
         await _context.SaveChangesAsync();
-
+        await PublishNewPatient(patient);
         var createdPatientDto = CreatePatientDtoWithLinks(patient);
 
         var response = new

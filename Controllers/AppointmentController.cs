@@ -1,5 +1,7 @@
 using DoctorAppointmentWebApi.DTOs;
 using DoctorAppointmentWebApi.Models;
+using DoctorAppointmentWebApi.RabbitMQ;
+using EasyNetQ;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,10 +12,12 @@ namespace DoctorAppointmentWebApi.Controllers;
 public class AppointmentController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+    private readonly IBus _bus;
 
-    public AppointmentController(ApplicationDbContext context)
+    public AppointmentController(ApplicationDbContext context, IBus bus)
     {
         _context = context;
+        _bus = bus;
     }
 
     [HttpGet(Name = nameof(GetAppointments))]
@@ -60,6 +64,23 @@ public class AppointmentController : ControllerBase
             }
         });
     }
+    
+    private async Task PublishNewAppointment(Appointment appointment)
+    {
+        var loadedAppointment = await _context.Appointments
+            .Include(a => a.Patient)
+            .Include(a => a.Doctor)
+            .FirstOrDefaultAsync(a => a.AppointmentId == appointment.AppointmentId);
+
+        if (loadedAppointment == null || loadedAppointment.Patient == null || loadedAppointment.Doctor == null)
+        {
+            throw new InvalidOperationException("Ошибочка!");
+        }
+
+        var message = loadedAppointment.ToNewAppointmentMessage();
+        await _bus.PubSub.PublishAsync(message);
+    }
+
 
     [HttpPost(Name = nameof(CreateAppointment))]
     public async Task<ActionResult<AppointmentDto>> CreateAppointment(AppointmentDto appointmentDto)
@@ -75,6 +96,7 @@ public class AppointmentController : ControllerBase
 
         _context.Appointments.Add(appointment);
         await _context.SaveChangesAsync();
+        await PublishNewAppointment(appointment);
 
         var newAppointmentDto = CreateAppointmentDtoWithLinks(appointment);
 

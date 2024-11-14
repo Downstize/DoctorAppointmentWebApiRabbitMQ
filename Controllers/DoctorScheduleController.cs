@@ -1,5 +1,8 @@
 using DoctorAppointmentWebApi.DTOs;
+using DoctorAppointmentWebApi.Messages;
 using DoctorAppointmentWebApi.Models;
+using DoctorAppointmentWebApi.RabbitMQ;
+using EasyNetQ;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,10 +13,12 @@ namespace DoctorAppointmentWebApi.Controllers;
 public class DoctorScheduleController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+    private readonly IBus _bus;
 
-    public DoctorScheduleController(ApplicationDbContext context)
+    public DoctorScheduleController(ApplicationDbContext context, IBus bus)
     {
         _context = context;
+        _bus = bus;
     }
 
     [HttpGet(Name = nameof(GetSchedules))]
@@ -87,11 +92,35 @@ public class DoctorScheduleController : ControllerBase
 
         return Ok(response);
     }
+    
+    private async Task PublishUpdatedDoctorSchedule(DoctorSchedule doctorSchedule)
+    {
+        var message = doctorSchedule.ToUpdatedScheduleMessage();
+        await _bus.PubSub.PublishAsync(message);
+    }
+    
+    private async Task NotifyPatientsAboutUpdatedSchedule(DoctorSchedule schedule)
+    {
+        var appointments = await _context.Appointments
+            .Where(a => a.DoctorId == schedule.DoctorId)
+            .Include(a => a.Patient) 
+            .ToListAsync();
+        
+        foreach (var appointment in appointments)
+        {
+            var message = schedule.ToPatientAboutUpdatedDoctorSchedule(schedule.Doctor, appointment.Patient);
+            await _bus.PubSub.PublishAsync(message);
+        }
+    }
+
+
 
     [HttpPut("{id}", Name = nameof(UpdateSchedule))]
     public async Task<IActionResult> UpdateSchedule(Guid id, DoctorScheduleDto scheduleDto)
     {
-        var schedule = await _context.DoctorSchedules.FindAsync(id);
+        var schedule = await _context.DoctorSchedules
+            .Include(s => s.Doctor) 
+            .FirstOrDefaultAsync(s => s.ScheduleId == id);
         if (schedule == null) return NotFound();
 
         schedule.DoctorId = scheduleDto.DoctorId;
@@ -100,6 +129,8 @@ public class DoctorScheduleController : ControllerBase
         schedule.DayOfWeek = scheduleDto.DayOfWeek;
 
         await _context.SaveChangesAsync();
+        await PublishUpdatedDoctorSchedule(schedule);
+        await NotifyPatientsAboutUpdatedSchedule(schedule);
 
         var updatedScheduleDto = CreateDoctorScheduleDtoWithLinks(schedule);
 
@@ -116,6 +147,7 @@ public class DoctorScheduleController : ControllerBase
 
         return Ok(response);
     }
+
 
     [HttpDelete("{id}", Name = nameof(DeleteSchedule))]
     public async Task<IActionResult> DeleteSchedule(Guid id)
@@ -138,8 +170,7 @@ public class DoctorScheduleController : ControllerBase
 
         return Ok(response);
     }
-
-    // Вспомогательный метод для создания DTO с включенными ссылками HAL
+    
     private DoctorScheduleDto CreateDoctorScheduleDtoWithLinks(DoctorSchedule schedule)
     {
         var scheduleDto = new DoctorScheduleDto

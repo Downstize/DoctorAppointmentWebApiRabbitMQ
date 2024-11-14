@@ -9,7 +9,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="532784e5-f5ce-4866-a680-971d1076f7ad" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Controllers/ReportController.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Models/DoctorReportRequest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/RabbitMQ/RabbitMQ.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.DoctorAppointmentWebApi/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.DoctorAppointmentWebApi/.idea/dataSources.local.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.DoctorAppointmentWebApi/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.DoctorAppointmentWebApi/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/AppointmentController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/AppointmentController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/DoctorScheduleController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/DoctorScheduleController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/PatientController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/PatientController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DoctorAppointmentWebApi.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/DoctorAppointmentWebApi.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DoctorAppointmentWebApi.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/DoctorAppointmentWebApi.sln.DotSettings.user" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/appsettings.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,12 +41,13 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Downstize/DoctorAppointmentWebApi.git&quot;,
+    &quot;url&quot;: &quot;https://github.com/Downstize/DoctorAppointmentWebApiRabbitMQ.git&quot;,
     &quot;accountId&quot;: &quot;180f9c44-5558-438e-b108-39c017975fc6&quot;
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/e747192abb38e2df82cbdb37e721567726f559914a7b81f8b26ba537de632f4/List.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../С# Projects/DoctorAppointmentWebApi.Messages/NewPatientMessage.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
@@ -122,6 +134,12 @@
       <workItem from="1727879780035" duration="10515000" />
       <workItem from="1728392607068" duration="2408000" />
       <workItem from="1728410687742" duration="3309000" />
+      <workItem from="1729758481508" duration="8691000" />
+      <workItem from="1730218437575" duration="3276000" />
+      <workItem from="1730360407543" duration="8488000" />
+      <workItem from="1730493004119" duration="865000" />
+      <workItem from="1731157668448" duration="2921000" />
+      <workItem from="1731569056573" duration="9628000" />
     </task>
     <task id="LOCAL-00001" summary="Init">
       <option name="closed" value="true" />
@@ -163,7 +181,15 @@
       <option name="project" value="LOCAL" />
       <updated>1728413307493</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="init">
+      <option name="closed" value="true" />
+      <created>1729758572738</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1729758572738</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -172,13 +198,13 @@
   <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
   <component name="VcsManagerConfiguration">
-    <option name="LOCAL_CHANGES_DETAILS_PREVIEW_SHOWN" value="false" />
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="Init" />
     <MESSAGE value="We can get a list of patients now. And find a patient by id" />
     <MESSAGE value="Added: RootController.cs, SpecializationsController.cs &amp; Models &amp; DTO's" />
     <MESSAGE value="Added full CRUD" />
     <MESSAGE value="UPD all CRUD is ready" />
-    <option name="LAST_COMMIT_MESSAGE" value="UPD all CRUD is ready" />
+    <MESSAGE value="init" />
+    <option name="LAST_COMMIT_MESSAGE" value="init" />
   </component>
 </project>
