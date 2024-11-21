@@ -25,4 +25,8 @@
       </Reference>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\С# Projects\DoctorAppointmentWeb.Api\DoctorAppointmentWeb.Api.csproj" />
+    </ItemGroup>
+
 </Project>
