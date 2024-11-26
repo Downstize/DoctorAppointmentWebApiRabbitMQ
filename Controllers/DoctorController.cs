@@ -1,3 +1,5 @@
+using DoctorAppointmentWeb.Api.Controllers;
+using DoctorAppointmentWeb.Api.Responses;
 using DoctorAppointmentWebApi.DTOs;
 using DoctorAppointmentWebApi.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +9,7 @@ namespace DoctorAppointmentWebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class DoctorController : ControllerBase
+public class DoctorController : ControllerBase, IDoctorApi
 {
     private readonly ApplicationDbContext _context;
 
@@ -17,7 +19,7 @@ public class DoctorController : ControllerBase
     }
 
     [HttpGet(Name = nameof(GetDoctors))]
-    public async Task<ActionResult<IEnumerable<DoctorDto>>> GetDoctors()
+    public async Task<ActionResult<IEnumerable<DoctorResponse>>> GetDoctors()
     {
         var doctors = await _context.Doctors.Include(d => d.Specialization).Include(d => d.Department).ToListAsync();
 
@@ -37,7 +39,7 @@ public class DoctorController : ControllerBase
     }
 
     [HttpPost(Name = nameof(CreateDoctor))]
-    public async Task<ActionResult<DoctorDto>> CreateDoctor(DoctorDto doctorDto)
+    public async Task<ActionResult<DoctorResponse>> CreateDoctor(DoctorRequest doctorDto)
     {
         var doctor = new Doctor
         {
@@ -68,7 +70,7 @@ public class DoctorController : ControllerBase
     }
 
     [HttpGet("{id}", Name = nameof(GetDoctorById))]
-    public async Task<ActionResult<DoctorDto>> GetDoctorById(Guid id)
+    public async Task<ActionResult<DoctorResponse>> GetDoctorById(Guid id)
     {
         var doctor = await _context.Doctors.Include(d => d.Specialization).Include(d => d.Department).FirstOrDefaultAsync(d => d.DoctorId == id);
         if (doctor == null) return NotFound();
@@ -90,7 +92,7 @@ public class DoctorController : ControllerBase
     }
 
     [HttpPut("{id}", Name = nameof(UpdateDoctor))]
-    public async Task<IActionResult> UpdateDoctor(Guid id, DoctorDto doctorDto)
+    public async Task<IActionResult> UpdateDoctor(Guid id, DoctorRequest doctorDto)
     {
         var doctor = await _context.Doctors.FindAsync(id);
         if (doctor == null) return NotFound();

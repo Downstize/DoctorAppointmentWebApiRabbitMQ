@@ -1,3 +1,5 @@
+using DoctorAppointmentWeb.Api.Controllers;
+using DoctorAppointmentWeb.Api.Responses;
 using DoctorAppointmentWebApi.DTOs;
 using DoctorAppointmentWebApi.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +9,7 @@ namespace DoctorAppointmentWebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class SpecializationController : ControllerBase
+public class SpecializationController : ControllerBase, ISpecializationApi
 {
     private readonly ApplicationDbContext _context;
 
@@ -17,7 +19,7 @@ public class SpecializationController : ControllerBase
     }
 
     [HttpGet(Name = nameof(GetSpecializations))]
-    public async Task<ActionResult<IEnumerable<SpecializationDto>>> GetSpecializations()
+    public async Task<ActionResult<IEnumerable<SpecializationResponse>>> GetSpecializations()
     {
         var specializations = await _context.Specializations.ToListAsync();
 
@@ -37,7 +39,7 @@ public class SpecializationController : ControllerBase
     }
 
     [HttpGet("{id}", Name = nameof(GetSpecializationById))]
-    public async Task<ActionResult<SpecializationDto>> GetSpecializationById(Guid id)
+    public async Task<ActionResult<SpecializationResponse>> GetSpecializationById(Guid id)
     {
         var specialization = await _context.Specializations.FindAsync(id);
 
@@ -57,7 +59,7 @@ public class SpecializationController : ControllerBase
     }
 
     [HttpPost(Name = nameof(CreateSpecialization))]
-    public async Task<ActionResult<SpecializationDto>> CreateSpecialization(SpecializationDto specializationDto)
+    public async Task<ActionResult<SpecializationResponse>> CreateSpecialization(SpecializationRequest specializationDto)
     {
         var specialization = new Specialization
         {
@@ -82,7 +84,7 @@ public class SpecializationController : ControllerBase
     }
 
     [HttpPut("{id}", Name = nameof(UpdateSpecialization))]
-    public async Task<IActionResult> UpdateSpecialization(Guid id, SpecializationDto specializationDto)
+    public async Task<IActionResult> UpdateSpecialization(Guid id, SpecializationRequest specializationDto)
     {
         var specialization = await _context.Specializations.FindAsync(id);
         if (specialization == null) return NotFound();

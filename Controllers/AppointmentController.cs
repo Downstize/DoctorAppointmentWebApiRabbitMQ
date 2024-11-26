@@ -24,9 +24,6 @@ public class AppointmentController : ControllerBase, IAppointmentApi
     }
 
     [HttpGet]
-    [SwaggerOperation(Summary = "Получить список всех приемов", Description = "Возвращает список всех записей на прием.")]
-    [SwaggerResponse(200, "Список приемов успешно возвращен", typeof(IEnumerable<AppointmentResponse>))]
-    [SwaggerResponse(500, "Внутренняя ошибка сервера")]
     public async Task<ActionResult<IEnumerable<AppointmentResponse>>> GetAppointments()
     {
         var appointments = await _context.Appointments

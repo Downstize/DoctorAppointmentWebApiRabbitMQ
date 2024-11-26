@@ -1,3 +1,5 @@
+using DoctorAppointmentWeb.Api.Controllers;
+using DoctorAppointmentWeb.Api.Responses;
 using DoctorAppointmentWebApi.DTOs;
 using DoctorAppointmentWebApi.Models;
 using DoctorAppointmentWebApi.RabbitMQ;
@@ -9,7 +11,7 @@ namespace DoctorAppointmentWebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class PatientController : ControllerBase
+public class PatientController : ControllerBase, IPatientApi
 {
     private readonly ApplicationDbContext _context;
     private readonly IBus _bus;
@@ -21,7 +23,7 @@ public class PatientController : ControllerBase
     }
     
     [HttpGet(Name = nameof(GetPatients))]
-    public async Task<ActionResult<IEnumerable<PatientDto>>> GetPatients()
+    public async Task<ActionResult<IEnumerable<PatientResponse>>> GetPatients()
     {
         var patients = await _context.Patients.ToListAsync();
 
@@ -47,7 +49,7 @@ public class PatientController : ControllerBase
     }
 
     [HttpPost(Name = nameof(CreatePatient))]
-    public async Task<ActionResult<PatientDto>> CreatePatient(PatientDto patientDto)
+    public async Task<ActionResult<PatientResponse>> CreatePatient(PatientRequest patientDto)
     {
         var patient = new Patient
         {
@@ -81,7 +83,7 @@ public class PatientController : ControllerBase
     }
 
     [HttpGet("{id}", Name = nameof(GetPatientById))]
-    public async Task<ActionResult<PatientDto>> GetPatientById(Guid id)
+    public async Task<ActionResult<PatientResponse>> GetPatientById(Guid id)
     {
         var patient = await _context.Patients.FindAsync(id);
 
@@ -107,7 +109,7 @@ public class PatientController : ControllerBase
     }
     
     [HttpPut("{id}", Name = nameof(UpdatePatient))]
-    public async Task<IActionResult> UpdatePatient(Guid id, PatientDto patientDto)
+    public async Task<IActionResult> UpdatePatient(Guid id, PatientRequest patientDto)
     {
         var patient = await _context.Patients.FindAsync(id);
         if (patient == null) return NotFound();

@@ -1,3 +1,5 @@
+using DoctorAppointmentWeb.Api.Controllers;
+using DoctorAppointmentWeb.Api.Responses;
 using DoctorAppointmentWebApi.DTOs;
 using DoctorAppointmentWebApi.Messages;
 using DoctorAppointmentWebApi.Models;
@@ -10,7 +12,7 @@ namespace DoctorAppointmentWebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class DoctorScheduleController : ControllerBase
+public class DoctorScheduleController : ControllerBase, IDoctorScheduleApi
 {
     private readonly ApplicationDbContext _context;
     private readonly IBus _bus;
@@ -22,7 +24,7 @@ public class DoctorScheduleController : ControllerBase
     }
 
     [HttpGet(Name = nameof(GetSchedules))]
-    public async Task<ActionResult<IEnumerable<DoctorScheduleDto>>> GetSchedules()
+    public async Task<ActionResult<IEnumerable<DoctorScheduleResponse>>> GetSchedules()
     {
         var schedules = await _context.DoctorSchedules.Include(ds => ds.Doctor).ToListAsync();
 
@@ -42,7 +44,7 @@ public class DoctorScheduleController : ControllerBase
     }
 
     [HttpPost(Name = nameof(CreateSchedule))]
-    public async Task<ActionResult<DoctorScheduleDto>> CreateSchedule(DoctorScheduleDto scheduleDto)
+    public async Task<ActionResult<DoctorScheduleResponse>> CreateSchedule(DoctorScheduleRequest scheduleDto)
     {
         var schedule = new DoctorSchedule
         {
@@ -72,7 +74,7 @@ public class DoctorScheduleController : ControllerBase
     }
 
     [HttpGet("{id}", Name = nameof(GetScheduleById))]
-    public async Task<ActionResult<DoctorScheduleDto>> GetScheduleById(Guid id)
+    public async Task<ActionResult<DoctorScheduleResponse>> GetScheduleById(Guid id)
     {
         var schedule = await _context.DoctorSchedules.Include(ds => ds.Doctor).FirstOrDefaultAsync(ds => ds.ScheduleId == id);
         if (schedule == null) return NotFound();
@@ -116,7 +118,7 @@ public class DoctorScheduleController : ControllerBase
 
 
     [HttpPut("{id}", Name = nameof(UpdateSchedule))]
-    public async Task<IActionResult> UpdateSchedule(Guid id, DoctorScheduleDto scheduleDto)
+    public async Task<IActionResult> UpdateSchedule(Guid id, DoctorScheduleRequest scheduleDto)
     {
         var schedule = await _context.DoctorSchedules
             .Include(s => s.Doctor) 

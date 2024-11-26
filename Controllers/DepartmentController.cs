@@ -1,3 +1,5 @@
+using DoctorAppointmentWeb.Api.Controllers;
+using DoctorAppointmentWeb.Api.Responses;
 using DoctorAppointmentWebApi.DTOs;
 using DoctorAppointmentWebApi.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +9,7 @@ namespace DoctorAppointmentWebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class DepartmentController : ControllerBase
+public class DepartmentController : ControllerBase, IDepartmentApi
 {
     private readonly ApplicationDbContext _context;
 
@@ -17,7 +19,7 @@ public class DepartmentController : ControllerBase
     }
 
     [HttpGet(Name = nameof(GetDepartments))]
-    public async Task<ActionResult<IEnumerable<DepartmentDto>>> GetDepartments()
+    public async Task<ActionResult<IEnumerable<DepartmentResponse>>> GetDepartments()
     {
         var departments = await _context.Departments.ToListAsync();
         var departmentDtos = departments.Select(department => CreateDepartmentDtoWithLinks(department)).ToList();
@@ -36,7 +38,7 @@ public class DepartmentController : ControllerBase
     }
 
     [HttpGet("{id}", Name = nameof(GetDepartmentById))]
-    public async Task<ActionResult<DepartmentDto>> GetDepartmentById(Guid id)
+    public async Task<ActionResult<DepartmentResponse>> GetDepartmentById(Guid id)
     {
         var department = await _context.Departments.FindAsync(id);
         if (department == null) return NotFound();
@@ -57,7 +59,7 @@ public class DepartmentController : ControllerBase
     }
 
     [HttpPost(Name = nameof(CreateDepartment))]
-    public async Task<ActionResult<DepartmentDto>> CreateDepartment(DepartmentDto departmentDto)
+    public async Task<ActionResult<DepartmentResponse>> CreateDepartment(DepartmentRequest departmentDto)
     {
         var department = new Department
         {
@@ -85,7 +87,7 @@ public class DepartmentController : ControllerBase
     }
 
     [HttpPut("{id}", Name = nameof(UpdateDepartment))]
-    public async Task<IActionResult> UpdateDepartment(Guid id, DepartmentDto departmentDto)
+    public async Task<IActionResult> UpdateDepartment(Guid id, DepartmentRequest departmentDto)
     {
         var department = await _context.Departments.FindAsync(id);
         if (department == null) return NotFound();
@@ -132,8 +134,15 @@ public class DepartmentController : ControllerBase
         return Ok(response);
     }
 
+    
+    /// <summary>
+    /// DepartmentResponse
+    /// </summary>
+    /// <param name="department"></param>
+    /// <returns>smth</returns>
+    
     // Вспомогательный метод для создания DTO с включенными ссылками HAL
-    private DepartmentDto CreateDepartmentDtoWithLinks(Department department)
+    private DepartmentDto CreateDepartmentDtoWithLinks(Department department) 
     {
         var departmentDto = new DepartmentDto
         {
