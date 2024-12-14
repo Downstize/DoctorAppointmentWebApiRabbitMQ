@@ -94,28 +94,6 @@ public class DoctorScheduleController : ControllerBase, IDoctorScheduleApi
 
         return Ok(response);
     }
-    
-    private async Task PublishUpdatedDoctorSchedule(DoctorSchedule doctorSchedule)
-    {
-        var message = doctorSchedule.ToUpdatedScheduleMessage();
-        await _bus.PubSub.PublishAsync(message);
-    }
-    
-    private async Task NotifyPatientsAboutUpdatedSchedule(DoctorSchedule schedule)
-    {
-        var appointments = await _context.Appointments
-            .Where(a => a.DoctorId == schedule.DoctorId)
-            .Include(a => a.Patient) 
-            .ToListAsync();
-        
-        foreach (var appointment in appointments)
-        {
-            var message = schedule.ToPatientAboutUpdatedDoctorSchedule(schedule.Doctor, appointment.Patient);
-            await _bus.PubSub.PublishAsync(message);
-        }
-    }
-
-
 
     [HttpPut("{id}", Name = nameof(UpdateSchedule))]
     public async Task<IActionResult> UpdateSchedule(Guid id, DoctorScheduleRequest scheduleDto)
@@ -131,8 +109,6 @@ public class DoctorScheduleController : ControllerBase, IDoctorScheduleApi
         schedule.DayOfWeek = scheduleDto.DayOfWeek;
 
         await _context.SaveChangesAsync();
-        await PublishUpdatedDoctorSchedule(schedule);
-        await NotifyPatientsAboutUpdatedSchedule(schedule);
 
         var updatedScheduleDto = CreateDoctorScheduleDtoWithLinks(schedule);
 

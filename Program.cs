@@ -1,16 +1,32 @@
 using DoctorAppointmentWebApi;
 using DoctorAppointmentWebApi.ExceptionHandler;
 using DoctorAppointmentWebApi.Filters;
+using DoctorAppointmentWebApi.Hub;
 using EasyNetQ;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 var bus = RabbitHutch.CreateBus(builder.Configuration.GetConnectionString("AutoRabbitMQ"));
 builder.Services.AddSingleton<IBus>(bus);
+
+builder.Services.AddSignalR();
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("http://127.0.0.1:5500", "http://localhost:5500")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+            .SetIsOriginAllowed(origin => true);
+    });
+});
+
+
 builder.Services.AddControllers()
     .AddMvcOptions(options =>
     {
@@ -32,8 +48,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors();
+
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<AppointmentHub>("/appointmentHub");
 
 app.Run();

@@ -1,6 +1,7 @@
 using DoctorAppointmentWeb.Api.Controllers;
 using DoctorAppointmentWeb.Api.Responses;
 using DoctorAppointmentWebApi.DTOs;
+using DoctorAppointmentWebApi.Messages;
 using DoctorAppointmentWebApi.Models;
 using DoctorAppointmentWebApi.RabbitMQ;
 using EasyNetQ;
@@ -80,7 +81,6 @@ public class AppointmentController : ControllerBase, IAppointmentApi
 
         _context.Appointments.Add(appointment);
         await _context.SaveChangesAsync();
-        await PublishNewAppointment(appointment);
 
         var response = new AppointmentResponse
         {
@@ -91,8 +91,25 @@ public class AppointmentController : ControllerBase, IAppointmentApi
             Status = appointment.Status,
             Notes = appointment.Notes
         };
+        
+        PublishAppointmentToRabbitMQ(appointment);
 
         return CreatedAtAction(nameof(GetAppointmentById), new { id = appointment.AppointmentId }, response);
+    }
+    
+    private void PublishAppointmentToRabbitMQ(Appointment appointment)
+    {
+        var message = new AppointmentMessage
+        {
+            AppointmentId = appointment.AppointmentId,
+            PatientId = appointment.PatientId,
+            DoctorId = appointment.DoctorId,
+            AppointmentDateTime = appointment.AppointmentDateTime,
+            Status = appointment.Status
+        };
+
+        _bus.PubSub.Publish(message);
+        Console.WriteLine($"[x] Published Appointment: {message.AppointmentId}");
     }
 
     [HttpPut("{id:guid}")]
@@ -132,11 +149,5 @@ public class AppointmentController : ControllerBase, IAppointmentApi
         await _context.SaveChangesAsync();
 
         return Ok(new { message = $"Appointment {appointment.AppointmentId} deleted" });
-    }
-
-    private async Task PublishNewAppointment(Appointment appointment)
-    {
-        var message = appointment.ToNewAppointmentMessage();
-        await _bus.PubSub.PublishAsync(message);
     }
 }

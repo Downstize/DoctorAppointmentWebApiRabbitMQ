@@ -34,8 +34,7 @@ public class SwaggerOperationFromInterfaceFilter : IOperationFilter
             foreach (var responseAttribute in swaggerResponseAttributes)
             {
                 var statusCode = responseAttribute.StatusCode.ToString();
-
-                // Проверяем, существует ли уже ответ с таким статусом
+                
                 if (!operation.Responses.ContainsKey(statusCode))
                 {
                     operation.Responses.Add(statusCode, new OpenApiResponse
@@ -45,10 +44,10 @@ public class SwaggerOperationFromInterfaceFilter : IOperationFilter
                 }
                 else
                 {
-                    // Обновляем описание, если ответ уже существует
                     operation.Responses[statusCode].Description = responseAttribute.Description;
                 }
             }
         }
     }
 }
+

@@ -42,12 +42,6 @@ public class PatientController : ControllerBase, IPatientApi
         return Ok(response);
     }
 
-    private async Task PublishNewPatient(Patient patient)
-    {
-        var message = patient.ToNewPatientMessage();
-        await _bus.PubSub.PublishAsync(message);
-    }
-
     [HttpPost(Name = nameof(CreatePatient))]
     public async Task<ActionResult<PatientResponse>> CreatePatient(PatientRequest patientDto)
     {
@@ -65,7 +59,6 @@ public class PatientController : ControllerBase, IPatientApi
         
         _context.Patients.Add(patient);
         await _context.SaveChangesAsync();
-        await PublishNewPatient(patient);
         var createdPatientDto = CreatePatientDtoWithLinks(patient);
 
         var response = new
