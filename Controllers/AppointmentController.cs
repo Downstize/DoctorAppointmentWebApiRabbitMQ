@@ -75,7 +75,7 @@ public class AppointmentController : ControllerBase, IAppointmentApi
             PatientId = request.PatientId,
             DoctorId = request.DoctorId,
             AppointmentDateTime = request.AppointmentDateTime,
-            Status = request.Status,
+            Status = "In processing", // Устанавливаем статус автоматически
             Notes = request.Notes
         };
 
@@ -91,7 +91,7 @@ public class AppointmentController : ControllerBase, IAppointmentApi
             Status = appointment.Status,
             Notes = appointment.Notes
         };
-        
+    
         PublishAppointmentToRabbitMQ(appointment);
 
         return CreatedAtAction(nameof(GetAppointmentById), new { id = appointment.AppointmentId }, response);
@@ -99,17 +99,25 @@ public class AppointmentController : ControllerBase, IAppointmentApi
     
     private void PublishAppointmentToRabbitMQ(Appointment appointment)
     {
+        var patient = _context.Patients.FirstOrDefault(p => p.PatientID == appointment.PatientId);
+
+        if (patient == null)
+        {
+            throw new Exception("Пациент не найден");
+        }
+
         var message = new AppointmentMessage
         {
             AppointmentId = appointment.AppointmentId,
             PatientId = appointment.PatientId,
             DoctorId = appointment.DoctorId,
             AppointmentDateTime = appointment.AppointmentDateTime,
-            Status = appointment.Status
+            Status = appointment.Status,
+            PatientFullName = $"{patient.FirstName} {patient.LastName}"
         };
 
         _bus.PubSub.Publish(message);
-        Console.WriteLine($"[x] Published Appointment: {message.AppointmentId}");
+        Console.WriteLine($"[x] Опубликована запись на приём: {message.AppointmentId}");
     }
 
     [HttpPut("{id:guid}")]
@@ -121,7 +129,7 @@ public class AppointmentController : ControllerBase, IAppointmentApi
         appointment.PatientId = request.PatientId;
         appointment.DoctorId = request.DoctorId;
         appointment.AppointmentDateTime = request.AppointmentDateTime;
-        appointment.Status = request.Status;
+        appointment.Status = "In processing";
         appointment.Notes = request.Notes;
 
         await _context.SaveChangesAsync();
