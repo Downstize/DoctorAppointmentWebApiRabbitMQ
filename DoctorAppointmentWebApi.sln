@@ -4,6 +4,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoctorAppointmentWebApi", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoctorAppointmentWeb.Api", "..\С# Projects\DoctorAppointmentWeb.Api\DoctorAppointmentWeb.Api.csproj", "{09D7714F-0777-43C6-A696-C961DA94F67E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoctorAppointmentWebApi", "..\DoctorAppointmentWebApiGraphQL\DoctorAppointmentWebApi.csproj", "{6460B08E-B23F-4A0D-8030-5C6722E6E3C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotifierForWebsocket", "..\С# Projects\NotifierForWebsocket\NotifierForWebsocket.csproj", "{0D0176F8-A463-4F54-8F49-D24129E16898}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrpcClient", "..\С# Projects\gRPC\GrpcClient\GrpcClient.csproj", "{8BB3942C-6474-4BDA-98B4-DD7CE2CD68EB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrpcService", "..\С# Projects\gRPC\GrpcService.csproj", "{0B7716F2-6B4A-4459-B2CD-8A6F6510A118}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoctorAppointmentWebApi.CreateReport", "..\С# Projects\DoctorAppointmentWebApi.CreateReport\DoctorAppointmentWebApi.CreateReport.csproj", "{E2D7B579-8E3B-42B9-A0A2-50CBD40A115C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoctorAppointmentWebApi.Messages", "..\С# Projects\DoctorAppointmentWebApi.Messages\DoctorAppointmentWebApi.Messages.csproj", "{D1846A3A-CB05-44FA-BB67-3DF8DCDC745D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +30,29 @@ Global
 		{09D7714F-0777-43C6-A696-C961DA94F67E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{09D7714F-0777-43C6-A696-C961DA94F67E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{09D7714F-0777-43C6-A696-C961DA94F67E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6460B08E-B23F-4A0D-8030-5C6722E6E3C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6460B08E-B23F-4A0D-8030-5C6722E6E3C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6460B08E-B23F-4A0D-8030-5C6722E6E3C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6460B08E-B23F-4A0D-8030-5C6722E6E3C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D0176F8-A463-4F54-8F49-D24129E16898}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D0176F8-A463-4F54-8F49-D24129E16898}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D0176F8-A463-4F54-8F49-D24129E16898}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D0176F8-A463-4F54-8F49-D24129E16898}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BB3942C-6474-4BDA-98B4-DD7CE2CD68EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BB3942C-6474-4BDA-98B4-DD7CE2CD68EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BB3942C-6474-4BDA-98B4-DD7CE2CD68EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BB3942C-6474-4BDA-98B4-DD7CE2CD68EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B7716F2-6B4A-4459-B2CD-8A6F6510A118}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B7716F2-6B4A-4459-B2CD-8A6F6510A118}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B7716F2-6B4A-4459-B2CD-8A6F6510A118}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B7716F2-6B4A-4459-B2CD-8A6F6510A118}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2D7B579-8E3B-42B9-A0A2-50CBD40A115C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2D7B579-8E3B-42B9-A0A2-50CBD40A115C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2D7B579-8E3B-42B9-A0A2-50CBD40A115C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2D7B579-8E3B-42B9-A0A2-50CBD40A115C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1846A3A-CB05-44FA-BB67-3DF8DCDC745D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1846A3A-CB05-44FA-BB67-3DF8DCDC745D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1846A3A-CB05-44FA-BB67-3DF8DCDC745D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1846A3A-CB05-44FA-BB67-3DF8DCDC745D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

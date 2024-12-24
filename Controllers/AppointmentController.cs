@@ -75,7 +75,7 @@ public class AppointmentController : ControllerBase, IAppointmentApi
             PatientId = request.PatientId,
             DoctorId = request.DoctorId,
             AppointmentDateTime = request.AppointmentDateTime,
-            Status = "In processing", // Устанавливаем статус автоматически
+            Status = "In processing",
             Notes = request.Notes
         };
 

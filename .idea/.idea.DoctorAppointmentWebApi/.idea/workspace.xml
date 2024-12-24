@@ -9,7 +9,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="532784e5-f5ce-4866-a680-971d1076f7ad" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.DoctorAppointmentWebApi/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.DoctorAppointmentWebApi/.idea/dataSources.local.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.DoctorAppointmentWebApi/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.DoctorAppointmentWebApi/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Controllers/AppointmentController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/AppointmentController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Hub/AppointmentHub.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Hub/AppointmentHub.cs" afterDir="false" />
@@ -23,7 +22,7 @@
     <option name="firstShow" value="false" />
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../С# Projects/DoctorAppointmentWeb.Api" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -152,7 +151,10 @@
       <workItem from="1733928215618" duration="6975000" />
       <workItem from="1734003484590" duration="6313000" />
       <workItem from="1734212117220" duration="290000" />
-      <workItem from="1734212419869" duration="4079000" />
+      <workItem from="1734212419869" duration="4531000" />
+      <workItem from="1734970526517" duration="391000" />
+      <workItem from="1734983070034" duration="3187000" />
+      <workItem from="1734991054316" duration="2827000" />
     </task>
     <task id="LOCAL-00001" summary="Init">
       <option name="closed" value="true" />
@@ -234,7 +236,15 @@
       <option name="project" value="LOCAL" />
       <updated>1734212208774</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Change contract request of appointment for better compatibility with websocket">
+      <option name="closed" value="true" />
+      <created>1734276553957</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1734276553957</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -254,6 +264,7 @@
     <MESSAGE value="Added contract for Appointment" />
     <MESSAGE value="UPD" />
     <MESSAGE value="upd + websocket" />
-    <option name="LAST_COMMIT_MESSAGE" value="upd + websocket" />
+    <MESSAGE value="Change contract request of appointment for better compatibility with websocket" />
+    <option name="LAST_COMMIT_MESSAGE" value="Change contract request of appointment for better compatibility with websocket" />
   </component>
 </project>
